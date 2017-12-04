@@ -1,0 +1,25 @@
+#!/bin/bash
+# chkconfig: - 99 2
+# description: Nginx Service Control Script
+PROG="/usr/local/nginx/sbin/nginx"
+PIDF="/usr/local/nginx/logs/nginx.pid"
+case "$1" in
+        start)
+        $PROG
+        ;;
+        stop)
+        kill -3 $(cat $PIDF)
+        ;;
+        restart)
+        $0 stop &> /dev/null
+        if [ $? -ne 0 ] ; then continue ; fi
+        $0 start
+        ;;
+        reload)
+        kill -1 $(cat $PIDF)
+        ;;
+        *)
+        echo "Userage: $0 { start | stop | restart | reload }"
+        exit 1
+esac
+exit 0
