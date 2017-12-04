@@ -1,32 +1,30 @@
-新增模块：
-1.ngx_cache_purge
-ngx_cache_purge是第三方模块，用于清理nginx内置模块（proxy_cache）缓存。就像CDN的清理缓存的url命令一样。 
+======================使用saltstack的state来部署tengine反向代理====================
+1. 需要安装saltstack自动运维工具，安装完成后，直接运行tengine.sls模块即可实现部署。
+2. 部署后，tengine可以本地处理静态的图片和css、js、html文件请求，将动态的jsp、php文件
+发送给后端负载主机集群处理；当tengine本地无静态文件时，先从后端服务器中获取，并缓存到
+本地，之后直接从本地缓存响应静态请求。
+3. 后端负载主机ip和负载方式配置，需要修改upstream.conf文件（tomcat对应jsp处理集群、apache对应php处理集群）
 
-2.ngx_http_reqstat_module
-这个模块计算定义的变量，根据变量值分别统计Tengine的运行状况。
-可以监视的运行状况有：连接数、请求数、各种响应码范围的请求数、输入输出流量、rt、upstream访问等。
-
-3.http_upstream_check_module
-为Tengine提供主动式后端服务器健康检查的功能
-
-
-
-测试功能：
-1. 反向代理
-  - 图片第一次从后端服务器读取，缓存到nginx服务器，之后相同的图片请求直接从nginx服务器中取
-    当请求到nginx服务中没有的时，再从后端服务器中取，并缓存到nginx服务器
-  - 遇到jsp请求，直接将请求转发到后端的tomcat服务器
-2. 负载均衡测试
-  - 图片读取
-  - 轮询和哈希
-3. 后端自动检测
-  - 后端服务down===>自动剔除出负载均衡集群
-  - 后端服务恢复===>检测到rise状态后（每3秒检测一次，检测2此后为rise状态）重新加入负载均衡集群
-
-  
-  
-其他：
-1. 版本隐藏
-server_tag off;
-server_info off;
-server_tokens off;
+4.各种文件介绍：
+ . tengine.sls 和 top.sls
+   - saltstack的master端的入口文件和模块文件
+ . intengine.sh
+   - tengine反向代理的安装部署脚本
+ . 404.html
+   - 简单的网页404界面html文件
+ . anti-theft_chain.conf
+   - tengine防盗链配置文件
+ . nginx
+   - tengine启动脚本
+ . nginx.conf
+   - tengine主配置文件
+ . upstream.conf
+   - 负载主机集群配置文件
+ . enable-php.conf
+   - 本地处理php请求配置文件，如果php不在本地tengine服务器处理，删除此文件
+ . proxy-file.conf
+   - 静态文件代理配置文件
+ . proxy-jsp.conf
+   - jsp文件代理配置文件
+ . proxy-php.conf
+   - php文件代理配置文件
